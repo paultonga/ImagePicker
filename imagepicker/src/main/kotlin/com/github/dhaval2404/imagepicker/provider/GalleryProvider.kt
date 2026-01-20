@@ -83,6 +83,18 @@ class GalleryProvider(activity: ImagePickerActivity) :
      * taken, the permission grant will be remembered across device reboots.
      */
     private fun takePersistableUriPermission(uri: Uri) {
-        contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            // Only attempt to take permission if it is a content URI
+            if (uri.scheme == "content") {
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+        } catch (e: SecurityException) {
+            // Log the error and move on. The app still has temporary access
+            // to the URI to set the image in the current session.
+            e.printStackTrace()
+        }
     }
 }
